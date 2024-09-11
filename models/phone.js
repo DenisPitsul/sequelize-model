@@ -8,18 +8,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      // define association here
+      Phone.belongsTo(models.Brand, {
+        foreignKey: 'brandId',
+      });
     }
   }
   Phone.init(
     {
-      brand: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
-      },
       model: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -45,10 +40,16 @@ module.exports = (sequelize, DataTypes) => {
       cpu: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
       screenSize: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        validate: {
+          min: 0.1,
+        },
       },
       hasNfc: {
         type: DataTypes.BOOLEAN,
@@ -58,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Phone',
+      underscored: true,
     }
   );
   return Phone;
