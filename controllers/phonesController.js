@@ -49,21 +49,21 @@ module.exports.getPhones = async (req, res, next) => {
       order: ['id'],
     });
 
-    const phonesWithBrand = foundPhones.map(phone => ({
-      id: phone.id,
-      model: phone.model,
-      manufacturedYear: phone.manufacturedYear,
-      ram: phone.ram,
-      cpu: phone.cpu,
-      screenSize: phone.screenSize,
-      hasNfc: phone.hasNfc,
-      brand: {
-        id: phone['Brand.id'],
-        name: phone['Brand.name'],
-      },
-    }));
+    const preparedPhones = foundPhones.map(p => {
+      let preparedPhone = { ...p };
+      preparedPhone.brand = {
+        id: p['Brand.id'],
+        name: p['Brand.name'],
+      };
+      preparedPhone = _.omit(preparedPhone, [
+        'brandId',
+        'Brand.id',
+        'Brand.name',
+      ]);
+      return preparedPhone;
+    });
 
-    res.status(200).send({ data: phonesWithBrand });
+    res.status(200).send({ data: preparedPhones });
   } catch (err) {
     next(err);
   }
@@ -88,21 +88,18 @@ module.exports.getPhoneById = async (req, res, next) => {
       return next(createHttpError(404, 'Phone Not Found'));
     }
 
-    const phoneWithBrand = {
-      id: foundPhone.id,
-      model: foundPhone.model,
-      manufacturedYear: foundPhone.manufacturedYear,
-      ram: foundPhone.ram,
-      cpu: foundPhone.cpu,
-      screenSize: foundPhone.screenSize,
-      hasNfc: foundPhone.hasNfc,
-      brand: {
-        id: foundPhone['Brand.id'],
-        name: foundPhone['Brand.name'],
-      },
+    let preparedPhone = { ...foundPhone };
+    preparedPhone.brand = {
+      id: foundPhone['Brand.id'],
+      name: foundPhone['Brand.name'],
     };
+    preparedPhone = _.omit(preparedPhone, [
+      'brandId',
+      'Brand.id',
+      'Brand.name',
+    ]);
 
-    res.status(200).send({ data: phoneWithBrand });
+    res.status(200).send({ data: preparedPhone });
   } catch (err) {
     next(err);
   }
